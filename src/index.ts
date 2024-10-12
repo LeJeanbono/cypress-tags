@@ -30,8 +30,12 @@ const isSkip = isPropertyAccessExpression('skip');
 
 // Convert tags from comma delimitered environment variables to string arrays
 const extractTags = (config: Cypress.PluginConfigOptions) => {
-  const includeEnvVar = config.env.CYPRESS_INCLUDE_TAGS ?? process.env.CYPRESS_INCLUDE_TAGS;
-  const excludeEnvVar = config.env.CYPRESS_EXCLUDE_TAGS ?? process.env.CYPRESS_EXCLUDE_TAGS;
+  let includeEnvVar = config.env.CYPRESS_INCLUDE_TAGS ?? process.env.CYPRESS_INCLUDE_TAGS;
+  let excludeEnvVar = String(config.env.CYPRESS_EXCLUDE_TAGS ?? process.env.CYPRESS_EXCLUDE_TAGS);
+
+  includeEnvVar = handleNumberConfigTags(includeEnvVar)
+  excludeEnvVar = handleNumberConfigTags(excludeEnvVar)
+
   const includeTags = includeEnvVar ? includeEnvVar.split(',') : [];
   const excludeTags = excludeEnvVar ? excludeEnvVar.split(',') : [];
 
@@ -40,6 +44,13 @@ const extractTags = (config: Cypress.PluginConfigOptions) => {
     excludeTags,
   };
 };
+
+const handleNumberConfigTags = (config: any) => {
+  if (!isNaN(Number(config))) {
+    config = String(config)
+  }
+  return config
+}
 
 const extractExpressionTags = (config: Cypress.PluginConfigOptions) => {
   const includeExpression = config.env.CYPRESS_INCLUDE_EXPRESSION ?? process.env.CYPRESS_INCLUDE_EXPRESSION;
